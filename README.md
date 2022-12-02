@@ -4,7 +4,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-**geodata** is an R package for downloading geographic data.
+**geodata** is an R package for downloading geographic data. This is the development version for the Excellence in Agronomy initiative of the CGIAR. This is developed specifically for the AgWISE decision support system.
+
 This package facilitates access to climate, elevation, soil, crop, species occurrence, and administrative boundary data, and is a successor of the `getData()` function from the **raster** package.
 
 ## Installation
@@ -19,7 +20,7 @@ You can install the development version of **geodata** from [GitHub](https://git
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("rspatial/geodata")
+remotes::install_github("AgWISE/geodata")
 ```
 
 ## Data 
