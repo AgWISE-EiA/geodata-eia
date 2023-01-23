@@ -12,11 +12,11 @@
 
 
 
-.check_path <- function(path) {
+.check_path <- function(path, recursive=FALSE) {
 	if (dir.exists(path)) {
 		return(TRUE)
 	}
-	test <- try(dir.create(path, recursive=FALSE), silent=TRUE)
+	test <- try(dir.create(path, showWarnings=FALSE, recursive=recursive), silent=TRUE)
 	if (inherits(test, "try-error")) {
 		stop("path cannot be created", call.=FALSE)	
 	}
@@ -26,7 +26,7 @@
 }
 
 
-.get_path <- function(path, check=TRUE) {
+.get_path <- function(path, add="") {
 	if (missing(path)) {
 		path <- geodata_path()
 	}
@@ -35,16 +35,21 @@
 	if (is.null(path)) stop("path cannot be NULL", call.=FALSE)
 	if (is.na(path)) stop("path cannot be NA", call.=FALSE)
 	if (path == "") stop("path is missing", call.=FALSE)
-	if (check) .check_path(path)
-	path
+	.check_path(path)
+	if (add != "") {
+		path <- file.path(path, add)
+		.check_path(path, TRUE)
+	}
+	path.expand(path)
 }
+
 
 geodata_path <- function(path) {
 	if (missing(path)) {
 		return( getOption("geodata_default_path", default = "") )
 	}
 	path <- .get_path(path, TRUE)
-	options(geodata_detault_path=path)
+	options(geodata_default_path=path)
 }
 
 
@@ -80,11 +85,14 @@ geodata_path <- function(path) {
 
 .donwload_url <- function(url, filepath, ...) {
 	if (!(file.exists(filepath))) {
-		.downloadDirect(url, filepath, ...)
-		r <- try(rast(filepath))
-		if (inherits(r, "try-error")) {
-			try(file.remove(filepath), silent=TRUE)
-			message("download failed")
+		if (.downloadDirect(url, filepath, ...)) {
+			r <- try(rast(filepath), silent=TRUE)
+			if (inherits(r, "try-error")) {
+				try(file.remove(filepath), silent=TRUE)
+				message("download failed")
+				return(NULL)
+			}
+		} else {
 			return(NULL)
 		}
 	} else {
